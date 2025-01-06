@@ -1,4 +1,4 @@
-name: Calculate and Echo Year
+name: Calculate and Use Year
 
 on:
   push:
@@ -6,22 +6,36 @@ on:
       - main
 
 jobs:
-  echo-year:
+  calculate-year:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Calculate the current year and check if it's after 7 days
+      - name: Calculate the current year and check if it's within the first 2 weeks
         id: get_year
         run: |
           CURRENT_YEAR=$(date +'%Y')
           CURRENT_MONTH_DAY=$(date +'%m-%d')
 
-          # Check if it's the first 7 days of the new year
-          if [[ "$CURRENT_MONTH_DAY" < "01-08" ]]; then
-            # If it's within the first 7 days of the year, use the previous year
+          # Check if it's within the first 14 days of the new year
+          if [[ "$CURRENT_MONTH_DAY" < "01-15" ]]; then
+            # If it's within the first 14 days, use the previous year
             PREVIOUS_YEAR=$((CURRENT_YEAR - 1))
             echo "Using the previous year: $PREVIOUS_YEAR"
+            echo "YEAR=$PREVIOUS_YEAR" >> $GITHUB_ENV
           else
             # Otherwise, use the current year
             echo "Using the current year: $CURRENT_YEAR"
+            echo "YEAR=$CURRENT_YEAR" >> $GITHUB_ENV
           fi
+
+  use-year:
+    runs-on: ubuntu-latest
+    needs: calculate-year  # This ensures that the 'calculate-year' job runs first
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use the stored year
+        run: |
+          echo "The year used in this job is: $YEAR"
