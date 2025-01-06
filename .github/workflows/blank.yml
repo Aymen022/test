@@ -1,0 +1,27 @@
+name: Calculate and Echo Year
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  echo-year:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Calculate the current year and check if it's after 7 days
+        id: get_year
+        run: |
+          CURRENT_YEAR=$(date +'%Y')
+          CURRENT_MONTH_DAY=$(date +'%m-%d')
+
+          # Check if it's the first 7 days of the new year
+          if [[ "$CURRENT_MONTH_DAY" < "01-08" ]]; then
+            # If it's within the first 7 days of the year, use the previous year
+            PREVIOUS_YEAR=$((CURRENT_YEAR - 1))
+            echo "Using the previous year: $PREVIOUS_YEAR"
+          else
+            # Otherwise, use the current year
+            echo "Using the current year: $CURRENT_YEAR"
+          fi
